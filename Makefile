@@ -42,6 +42,15 @@ air:
 lint:
 	golangci-lint run ./...
 
+.PHONY: fix-lint
+fix-lint:
+	golangci-lint run --fix
+
+.PHONY: format
+format:
+	@gofmt -s -w .
+	@goimports -w .
+
 .PHONY: up
 up:
 	docker compose -f docker/docker-compose.yml up -d

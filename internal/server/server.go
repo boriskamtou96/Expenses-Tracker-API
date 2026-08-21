@@ -39,6 +39,24 @@ func (s *Server) SetupRoutes() *gin.Engine {
 
 	r.GET("/health", healthCheckHandler)
 
+	// Auth endpoints
+	r.POST("/api/v1/auth/register") // register
+	r.POST("/api/v1/auth/login")    // login
+
+	// Wallet endpoints
+	r.GET("/api/v1/wallet")           // get user wallet
+	r.POST("/api/v1/wallet/deposti")  // user make a deposit
+	r.POST("/api/v1/wallet/withdraw") // user make a withdraw
+
+	// Transactions endpoints
+	r.GET("/api/v1/transactions")                 // get transactions list
+	r.GET("/api/v1/transactions/:id")             // get transactions by id
+	r.GET("/api/v1/transactions?type=withdrawal") // get transactions by type
+	r.GET("/api/v1/transactions?page=1&limit=20") // get paginated transactions
+
+	// Transfers
+	r.POST("/api/v1/transfers") // perform transfer between users
+
 	return r
 }
 
