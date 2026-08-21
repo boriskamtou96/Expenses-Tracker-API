@@ -34,6 +34,10 @@ build:
 run:
 	go run ./cmd/api
 
+.PHONY: air
+air:
+	air
+
 .PHONY: lint
 lint:
 	golangci-lint run ./...

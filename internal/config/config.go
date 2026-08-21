@@ -1,7 +1,7 @@
 package config
 
 import (
-	"expense-tracker/utils"
+	"expense-tracker/internal/utils"
 	"time"
 
 	"github.com/joho/godotenv"

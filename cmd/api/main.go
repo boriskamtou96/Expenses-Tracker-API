@@ -5,6 +5,7 @@ import (
 	"expense-tracker/internal/config"
 	"expense-tracker/internal/database"
 	"expense-tracker/internal/logger"
+	"expense-tracker/internal/server"
 )
 
 func main() {
@@ -26,12 +27,12 @@ func main() {
 	}
 
 	defer func(mainDB *sql.DB) {
-		err := mainDB.Close()
-		if err != nil {
-			log.Fatal().Err(err).Msg("Failed to close database")
+		if closeErr := mainDB.Close(); closeErr != nil {
+			log.Fatal().Err(closeErr).Msg("Failed to close database")
 		}
 	}(mainDB)
 
-	log.Info().Msg("Server running....")
+	srv := server.New(db, cfg, log)
 
+	srv.Run()
 }
