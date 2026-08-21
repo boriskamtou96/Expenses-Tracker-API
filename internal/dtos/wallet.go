@@ -3,7 +3,7 @@ package dtos
 import "time"
 
 type CreateWalletRequest struct {
-	UserId    int64         `json:"user_id"`
+	UserID    int64         `json:"user_id"`
 	Balance   float64       `json:"balance"`
 	Currency  string        `json:"currency"`
 	CreatedAt time.Duration `json:"created_at"`

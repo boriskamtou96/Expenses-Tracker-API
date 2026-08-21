@@ -9,7 +9,9 @@ help:
 	@echo "  run                Run the application"
 	@echo "  lint               Run golangci-lint on the codebase"
 
-# include .envrc
+include .env
+export $(shell test -f .env && sed 's/=.*//' .env)
+
 MIGRATIONS_PATH = ./db/migrations
 DB_ADDR ?= postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSLMODE)
 

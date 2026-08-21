@@ -3,9 +3,9 @@ package dtos
 import "time"
 
 type CreateTransferRequest struct {
-	SenderWalletID   int64         `json:"sender_wallet_id" binding:"required,gt=0"`
+	SenderWalletID   int64         `json:"sender_wallet_id"   binding:"required,gt=0"`
 	ReceiverWalletID int64         `json:"receiver_wallet_id" binding:"required,gt=0"`
-	Amount           float64       `json:"amount" binding:"required,gt=0"`
+	Amount           float64       `json:"amount"             binding:"required,gt=0"`
 	CreatedAt        time.Duration `json:"created_at"`
 }
 
