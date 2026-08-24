@@ -2,8 +2,10 @@ package server
 
 import (
 	"expense-tracker/internal/config"
+	"expense-tracker/internal/utils"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -12,8 +14,11 @@ import (
 )
 
 const (
-	dbReadWriteTimeout = 15
-	idleTimeOut        = 30
+	dbReadWriteTimeout     = 15
+	idleTimeOut            = 30
+	authorizationHeaderKey = "authorization"
+	authorizationType      = "bearer"
+	userID                 = "user_id"
 )
 
 type Server struct {
@@ -39,14 +44,27 @@ func (s *Server) SetupRoutes() *gin.Engine {
 
 	r.GET("/health", healthCheckHandler)
 
-	// Auth endpoints
-	r.POST("/api/v1/auth/register") // register
-	r.POST("/api/v1/auth/login")    // login
+	api := r.Group("/api/v1")
+	{
+		// Auth endpoints
+		auth := api.Group("/auth")
+		{
+			auth.POST("/register", s.register) // register
+			auth.POST("/login", s.login)       // login
+		}
 
-	// Wallet endpoints
-	r.GET("/api/v1/wallet")           // get user wallet
-	r.POST("/api/v1/wallet/deposti")  // user make a deposit
-	r.POST("/api/v1/wallet/withdraw") // user make a withdraw
+		protectedRoutes := api.Group("/", s.authMiddleware())
+		{
+			// Wallet endpoints
+			wallet := protectedRoutes.Group("/wallet")
+			{
+				wallet.GET("/", s.getUserWallet) // get user wallet
+				wallet.POST("/deposti")          // user make a deposit
+				wallet.POST("/withdraw")         // user make a withdraw
+			}
+		}
+
+	}
 
 	// Transactions endpoints
 	r.GET("/api/v1/transactions")                 // get transactions list
@@ -91,5 +109,38 @@ func (s *Server) corsMiddleware() gin.HandlerFunc {
 		}
 
 		c.Next()
+	}
+}
+
+func (s *Server) authMiddleware() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		authHeader := context.GetHeader(authorizationHeaderKey)
+		if authHeader == "" || len(authHeader) == 0 {
+			context.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "authorization header is not provided"})
+			return
+		}
+
+		field := strings.Fields(authHeader)
+		if len(field) < 2 {
+			context.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid authorization header format"})
+			return
+		}
+
+		authType := strings.ToLower(field[0])
+		if authorizationType != authType {
+			context.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unsupported authorization type"})
+			return
+		}
+
+		accessToken := field[1]
+		claims, err := utils.ValidateToken(accessToken, s.cfg.JWT.Secret)
+		if err != nil {
+			context.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			return
+		}
+
+		context.Set(userID, claims.UserID)
+
+		context.Next()
 	}
 }

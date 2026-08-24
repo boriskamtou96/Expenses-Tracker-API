@@ -31,7 +31,7 @@ func GenerateTokenPair(
 		},
 	}
 
-	at := jwt.NewWithClaims(jwt.SigningMethodES256, accessClaims)
+	at := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims)
 	accessTokenString, err := at.SignedString([]byte(cfg.Secret))
 	if err != nil {
 		return "", "", err
@@ -47,7 +47,7 @@ func GenerateTokenPair(
 		},
 	}
 
-	rt := jwt.NewWithClaims(jwt.SigningMethodES256, refreshClaims)
+	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)
 	refreshTokenString, err := rt.SignedString([]byte(cfg.Secret))
 	if err != nil {
 		return "", "", err
